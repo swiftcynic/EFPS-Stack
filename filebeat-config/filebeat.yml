@@ -1,0 +1,22 @@
+filebeat.inputs:
+- type: filestream
+  id: access-logs
+  paths:
+  - /var/log/apache2/*.log
+  
+output.kafka:
+  hosts: [kafka:29092]
+  topic: "access-logs"
+  topics:
+    - topic: "success"
+      when.regexp:
+        message: " 2[0-9][0-9] "
+        
+    - topic: "redirect"
+      when.regexp:
+        message: " 3[0-9][0-9] "
+        
+    - topic: "error"
+      when.regexp:
+        message: " [4-5][0-9][0-9] "
+        

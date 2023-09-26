@@ -1,0 +1,59 @@
+## Generating access logs -> root
+docker compose up -d
+
+
+## Generating access logs -> logs-generator
+python logs_generator.py -o LOG
+
+
+
+## Kafka Consumer -> anywhere
+kafka-console-consumer --bootstrap-server localhost:9092 --topic success --from-beginning
+
+
+
+## Kafka Consumer - container:kafka -> anywhere
+docker exec --interactive --tty kafka kafka-console-consumer --bootstrap-server kafka:29092 --topic success --from-beginning
+
+
+
+## Parser test -> faust
+kcat -C -b localhost:9092 -t success -c 1 | jq '.message' | python access_log_parser.py | jq '.'
+
+
+
+## Faust start -> faust
+faust -A faust_app worker -l info
+
+
+
+## Faust test -> anywhere
+kcat -C -b localhost:9092 -t enriched-logs -c 1 | jq '.expandedMessage'
+
+
+
+## Pinot add tables -> root
+docker run -v $PWD/pinot-config:/config --network big-data-project_default apachepinot/pinot:latest AddTable -schemaFile /config/schema.json -tableConfigFile /config/table.json -controllerHost pinot-controller -exec
+
+
+## Inspecting pinot:
+http://localhost:9000
+
+## Starting Dashboard -> anywhere
+
+!! DEBUGGING:
+IN superset CONTAINER RUN: pip install redis==4.5.4
+
+Step 1: Add User & Initialize (Only Once):
+docker exec -it superset superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@superset.com --password admin
+docker exec -it superset superset db upgrade
+docker exec -it superset superset init
+	
+Step 2:
+	Open http://localhost:8088 & register
+	
+Step 3:
+	Add apache Pinot Database at:
+		pinot+http://pinot-controller:8000/query/sql?controller=http://pinot-controller:9000/
+
+ngrok

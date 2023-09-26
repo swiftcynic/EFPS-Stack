@@ -1,0 +1,71 @@
+{
+	"schemaName" : "server_logs",
+	"dimensionFieldSpecs": [
+		{
+			"name": "uid",
+			"dataType": "STRING"
+		},
+		{
+			"name": "ip",
+			"dataType": "STRING"
+		},
+		{
+			"name": "country",
+			"dataType": "STRING"
+		},
+		{
+			"name": "url",
+			"dataType": "STRING"
+		},
+		{
+			"name": "response.status",
+			"dataType": "INT"
+		},
+		{
+			"name": "response.type",
+			"dataType": "STRING"
+		},
+		{
+			"name": "method",
+			"dataType": "STRING"
+		},
+		{
+			"name": "os.name",
+			"dataType": "STRING"
+		},
+		{
+			"name": "os.version",
+			"dataType": "STRING"
+		},
+		{
+			"name": "browser.name",
+			"dataType": "STRING"
+		},
+		{
+			"name": "browser.version",
+			"dataType": "STRING"
+		},
+		{
+			"name": "referer",
+			"dataType": "STRING"
+		},
+		{
+			"name": "bot",
+			"dataType": "BOOLEAN"
+		}
+	],
+	"metricFieldSpecs": [
+		{
+			"name": "response.bytes",
+			"dataType": "LONG"
+		}
+	],
+	"dateTimeFieldSpecs": [
+		{
+			"name": "ts",
+			"dataType": "TIMESTAMP",
+			"format": "1:MILLISECONDS:EPOCH",
+			"granularity": "1:MILLISECONDS"
+		}
+	]
+}

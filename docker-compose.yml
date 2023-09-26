@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    platform: "linux/arm64"
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    platform: "linux/arm64"
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 0
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181/kafka'
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_LISTENERS: PLAINTEXT_INTERNAL://0.0.0.0:29092,PLAINTEXT_EXTERNAL://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_INTERNAL://kafka:29092,PLAINTEXT_EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_INTERNAL:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.7.0-arm64
+    platform: linux/arm64/v8
+    container_name: filebeat
+    volumes:
+      - ./filebeat-config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs-data/:/var/log/apache2
+      
+  pinot-controller:
+    image: apachepinot/pinot:latest
+    platform: "linux/arm64"
+    command: "QuickStart -type EMPTY"
+    container_name: "pinot-controller"
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    depends_on:
+      - zookeeper
+  
+  superset:
+      image: apachepinot/pinot-superset:latest
+      platform: "linux/amd64"
+      container_name: "superset"
+      restart: unless-stopped
+      ports:
+        - "8088:8088"
+      volumes:
+        - ./superset-config:/app/pythonpath
+      
