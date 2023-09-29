@@ -8,7 +8,7 @@ python logs_generator.py -o LOG
 
 
 ## Kafka Consumer -> anywhere
-kafka-console-consumer --bootstrap-server localhost:9092 --topic success --from-beginning
+/opt/homebrew/opt/kafka/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic success --from-beginning
 
 
 
@@ -33,7 +33,7 @@ kcat -C -b localhost:9092 -t enriched-logs -c 1 | jq '.expandedMessage'
 
 
 ## Pinot add tables -> root
-docker run -v $PWD/pinot-config:/config --network big-data-project_default apachepinot/pinot:latest AddTable -schemaFile /config/schema.json -tableConfigFile /config/table.json -controllerHost pinot-controller -exec
+docker run -v $PWD/pinot-config:/config --network efps-stack_default apachepinot/pinot:latest AddTable -schemaFile /config/schema.json -tableConfigFile /config/table.json -controllerHost pinot-controller -exec
 
 
 ## Inspecting pinot:
